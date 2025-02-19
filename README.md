@@ -1,4 +1,5 @@
-# Project struct
+Run VS Code on any machine anywhere and access it in the browser.
+## Project struct
 ```
 root/
 │── docker-compose.yml
@@ -19,11 +20,20 @@ root/
 │── .env
 ```
 
-#  Docker Compose
+##  Docker Compose
 
 Run: ```docker-compose up -d```
 
-# Kubernetes
+## Kubernetes
 
-Run: ```kubectl apply -f k8s/```
-Check status: ```kubectl get pods,svc,ingress```
+### Run with Localhost:
+
+1. Build image ```docker build -t my-vscode-image -f vscode/Dockerfile .```
+2. Load image into Kubernetes ```docker tag my-vscode-image my-vscode-image:latest```
+3. Run: ```kubectl apply -f k8s/```
+4. Check status:```kubectl get pods,svc,ingress```
+
+## Tạo SSL (local)
+
+```openssl req -x509 -newkey rsa:4096 -keyout tls.key -out tls.crt -days 365 -nodes -subj "/CN=vscode.localhost"```
+

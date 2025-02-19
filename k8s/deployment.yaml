@@ -1,33 +1,66 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: code-server-deployment
-  namespace: default
+    name: vm-vscode
 spec:
-  replicas: 10
-  selector:
-    matchLabels:
-      app: code-server
-  template:
-    metadata:
-      labels:
-        app: code-server
-    spec:
-      containers:
-        - name: code-server
-          image: codercom/code-server:latest
-          ports:
-            - containerPort: 8080
-          volumeMounts:
-            - mountPath: /home/coder/project
-              name: code-server-data
-            - name: config-volume
-              mountPath: /home/coder/.config/code-server/config.yaml
-              subPath: config.yaml
-      volumes:
-        - name: code-server-data
-          persistentVolumeClaim:
-            claimName: code-server-pvc
-        - name: config-volume
-          configMap:
-            name: code-server-config
+    replicas: 1
+    selector:
+        matchLabels:
+            app: vscode
+    template:
+        metadata:
+            labels:
+                app: vscode
+        spec:
+            containers:
+                - name: vscode
+                  image: my-vscode-image
+                  imagePullPolicy: Never
+                  args:
+                      - "--user=$USER"
+                      - "--uid=$UID"
+                      - "--gid=$GID"
+                      - "--log.level=DEBUG"
+                  env:
+                      - name: USER
+                        value: "coder"
+                      - name: UID
+                        value: "1000"
+                      - name: GID
+                        value: "1000"
+                      - name: PASSWORD
+                        value: "htplus"
+                      - name: DOCKER_USER
+                        value: "coder"
+                      - name: HTTPS_ENABLED
+                        value: "false"
+                      - name: APP_PORT
+                        value: "8443"
+                      - name: APP_BIND_HOST
+                        value: "0.0.0.0"
+                      - name: LAB_REPO
+                        value: "https://github.com/oxygen-batd/oxyLamportSend"
+                      - name: EXTENSIONS
+                        value: "MS-CEINTL.vscode-language-pack-ja"
+                  ports:
+                      - containerPort: 8443
+                  securityContext:
+                      runAsUser: 1000
+                      runAsGroup: 1000
+                  volumeMounts:
+                      - name: vscode-workspace
+                        mountPath: /home/coder/workspace
+                      - name: vscode-config
+                        mountPath: /home/coder/.config
+                      - name: vscode-certs
+                        mountPath: /home/coder/.certs
+            volumes:
+                - name: vscode-workspace
+                  persistentVolumeClaim:
+                      claimName: vscode-workspace-pvc
+                - name: vscode-config
+                  persistentVolumeClaim:
+                      claimName: vscode-config-pvc
+                - name: vscode-certs
+                  persistentVolumeClaim:
+                      claimName: vscode-certs-pvc

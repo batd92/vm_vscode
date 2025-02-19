@@ -1,20 +1,22 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: code-server-ingress
-  namespace: default
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
+    name: vscode-ingress
+    annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
 spec:
-  ingressClassName: nginx
-  rules:
-  - host: vscode.localhost
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: code-server-service
-            port:
-              number: 80
+    rules:
+        - host: vscode.localhost
+          http:
+              paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                        service:
+                            name: vscode-service
+                            port:
+                                number: 8443
+    tls:
+        - hosts:
+              - vscode.localhost
+          secretName: vscode-tls-secret

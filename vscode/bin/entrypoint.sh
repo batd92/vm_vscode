@@ -42,32 +42,29 @@ fi
 
 if [ ${EXTENSIONS} != "none" ]
     then
-      echo "Installing Extensions"
-      for extension in $(echo ${EXTENSIONS} | tr "," "\n")
-        do
-          if [ "${extension}" != "" ]
-            then
-              dumb-init /usr/bin/code-server \
-                --install-extension "${extension}" \
-                /home/coder
-	  fi
-        done
+        echo "Installing Extensions"
+        for extension in $(echo ${EXTENSIONS} | tr "," "\n")
+            do
+            if [ "${extension}" != "" ]
+                then
+                dumb-init /usr/bin/code-server \
+                    --install-extension "${extension}" \
+                    /home/coder
+        fi
+    done
 fi
 
-if [ ${LAB_REPO} != "none" ]
-  then
+if [ ${LAB_REPO} != "none" ] then
     cd workspace
     if [ ! -d "$(basename ${LAB_REPO} .git)" ]; then
-      git clone ${LAB_REPO}
+        git clone ${LAB_REPO}
     else
-      echo "Repo already exists, skipping clone."
+        echo "Repo already exists, skipping clone."
     fi
     cd ..
 fi
 
-
-if [ ${HTTPS_ENABLED} = "true" ]
-  then
+if [ ${HTTPS_ENABLED} = "true" ] then
     dumb-init /usr/bin/code-server \
       --bind-addr "${APP_BIND_HOST}":"${APP_PORT}" \
       --cert /home/coder/.certs/cert.pem \
