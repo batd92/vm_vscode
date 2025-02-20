@@ -21,6 +21,10 @@ root/
 │   ├── config.yaml
 │   ├── ingress.yaml
 │── .env
+│── .gitignore
+│──  k8s_deployment.sh
+│──  docker_deployment.sh
+│──  README.md
 ```
 ## DockerHub
 1. Build docker images: ```docker build -t htplus-vscode:latest .```
