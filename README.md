@@ -23,16 +23,16 @@ root/
 │── .env
 ```
 ## DockerHub
-build docker images: ```docker build -t htplus-vscode:latest .```
-set tag image: ```docker tag htplus-vscode:latest <yourusername>/htplus-vscode:latest```
-push image to DockerHub: ```docker push yourusername/htplus-vscode:latest``` 
+1. Build docker images: ```docker build -t htplus-vscode:latest .```
+2. Set tag image: ```docker tag htplus-vscode:latest <yourusername>/htplus-vscode:latest```
+3. Push image to DockerHub: ```docker push yourusername/htplus-vscode:latest``` 
 
 ##  Docker Compose (Docker Swarm)
-create docker swarm: ```docker swarm leave --force```
-init docker swarm: ```docker swarm init```
 
-Run: ```docker stack deploy -c docker-compose.yml vscode_stack```
-Check stack: ```docker stack ls```
+1. Create docker swarm: ```docker swarm leave --force```
+2. Init docker swarm: ```docker swarm init```
+3. Run (openn git bash): ```./docker_deployment.sh```
+4. Check stack: ```docker stack ls```
 
 ## Kubernetes
 
