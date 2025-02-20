@@ -7,29 +7,39 @@ services:
             - "--api.insecure=true"
             - "--providers.docker=true"
             - "--entrypoints.web.address=:80"
+            - "--entrypoints.websecure.address=:443"
+            - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+            - "--certificatesresolvers.myresolver.acme.email=admin@example.com"
+            - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
             - "--ping=true"
-            - "--providers.file.filename=/etc/traefik/dynamic_conf.yml"
         ports:
             - "80:80"
             - "8080:8080"
+            - "443:443"
         volumes:
             - "/var/run/docker.sock:/var/run/docker.sock:ro"
+            - "./letsencrypt:/letsencrypt"
+            - "./traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml"
+        deploy:
+            placement:
+                constraints:
+                - "node.role == manager"
     whoami:
         image: "traefik/whoami"
         container_name: "whoami-service"
         labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
-        - "traefik.http.routers.whoami.entrypoints=web"
+            - "traefik.enable=true"
+            - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+            - "traefik.http.routers.whoami.entrypoints=web"
     vscode:
-        build:
-            context: ./vscode
-            dockerfile: Dockerfile
-            args:
-                USER: ${USER}
-                UID: ${UID}
-                GID: ${GID}
-        container_name: "vscode-service"
+        # build:
+        #     context: ./vscode-image
+        #     dockerfile: Dockerfile
+        #     args:
+        #         USER: ${USER}
+        #         UID: ${UID}
+        #         GID: ${GID}
+        image: batd92/htplus-vscode:latest
         env_file:
             - .env
         environment:
@@ -40,17 +50,28 @@ services:
             - APP_BIND_HOST=${APP_BIND_HOST}
             - LAB_REPO=${LAB_REPO}
             - EXTENSIONS=${EXTENSIONS}
-        user: "${UID}:${GID}"
+        user: "${UUID}:${GID}"
         volumes:
-            - $PWD/workspace:/home/coder/workspace
-            - $PWD/config:/home/coder/.config
-            - $PWD/certs:/home/coder/.certs
+            # - ./config:/home/coder/.config
+            - ./certs:/home/coder/.certs
+            - ./workspace:/home/coder/workspace
         ports:
-            - "${APP_PORT}:${APP_PORT}"
+            - "${APP_PORT:-8443}:${APP_PORT:-8443}"
         labels:
             - "traefik.enable=true"
-            # Docker Swarm - "traefik.http.routers.vscode.rule=Host(`vscode-{{.Task.Slot}}.localhost`)"
-            - "traefik.http.routers.vscode.rule=Host(`vscode.localhost`)"
+            - "traefik.http.routers.vscode.rule=Host(`vscode-{{.Task.Slot}}.localhost`)"
             - "traefik.http.services.vscode.loadbalancer.server.port=${APP_PORT}"
         deploy:
-            replicas: 1
+            replicas: 2
+            restart_policy:
+                condition: on-failure
+            resources:
+                limits:
+                    memory: 1G
+                    cpus: "0.5"
+volumes:
+  letsencrypt:
+
+networks:
+  web:
+    driver: overlay

@@ -10,7 +10,10 @@ root/
 │   ├── Dockerfile
 │   ├── bin/
 │   │   ├── entrypoint.sh
-│   ├── workspace/
+│── vscode-image/
+│   ├── Dockerfile
+│   ├── bin/
+│   │   ├── entrypoint.sh
 │── k8s/
 │   ├── deployment.yaml
 │   ├── service.yaml
@@ -19,10 +22,17 @@ root/
 │   ├── ingress.yaml
 │── .env
 ```
+## DockerHub
+build docker images: ```docker build -t htplus-vscode:latest .```
+set tag image: ```docker tag htplus-vscode:latest <yourusername>/htplus-vscode:latest```
+push image to DockerHub: ```docker push yourusername/htplus-vscode:latest``` 
 
-##  Docker Compose
+##  Docker Compose (Docker Swarm)
+create docker swarm: ```docker swarm leave --force```
+init docker swarm: ```docker swarm init```
 
-Run: ```docker-compose up -d```
+Run: ```docker stack deploy -c docker-compose.yml vscode_stack```
+Check stack: ```docker stack ls```
 
 ## Kubernetes
 
@@ -36,4 +46,3 @@ Run: ```docker-compose up -d```
 ## Tạo SSL (local)
 
 ```openssl req -x509 -newkey rsa:4096 -keyout tls.key -out tls.crt -days 365 -nodes -subj "/CN=vscode.localhost"```
-
