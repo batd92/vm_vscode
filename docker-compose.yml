@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
     traefik:
-        image: "traefik:v2.9"
+        image: "traefik:v3.3"
         command:
             - "--api.insecure=true"
             - "--providers.docker=true"
@@ -13,36 +13,44 @@ services:
             - "80:80"
             - "8080:8080"
         volumes:
-            - "/var/run/docker.sock:/var/run/docker.sock"
-            - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
-            - "./traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml"
+            - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    whoami:
+        image: "traefik/whoami"
+        container_name: "whoami-service"
+        labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+        - "traefik.http.routers.whoami.entrypoints=web"
     vscode:
         build:
             context: ./vscode
             dockerfile: Dockerfile
             args:
-                USER: $USER
-                UID: $UID
-                GID: $GID
+                USER: ${USER}
+                UID: ${UID}
+                GID: ${GID}
+        container_name: "vscode-service"
+        env_file:
+            - .env
         environment:
-            - PASSWORD=htplus
+            - PASSWORD=${PASSWORD}
             - DOCKER_USER=${USER}
-            - HTTPS_ENABLED=false
-            - APP_PORT=8443
-            - APP_BIND_HOST=0.0.0.0
-            - LAB_REPO=https://github.com/oxygen-batd/oxyLamportSend
-            - EXTENSIONS=MS-CEINTL.vscode-language-pack-ja
-        user: "$UID:$GID"
+            - HTTPS_ENABLED=${HTTPS_ENABLED}
+            - APP_PORT=${APP_PORT}
+            - APP_BIND_HOST=${APP_BIND_HOST}
+            - LAB_REPO=${LAB_REPO}
+            - EXTENSIONS=${EXTENSIONS}
+        user: "${UID}:${GID}"
         volumes:
             - $PWD/workspace:/home/coder/workspace
             - $PWD/config:/home/coder/.config
             - $PWD/certs:/home/coder/.certs
         ports:
-            - "8443"
+            - "${APP_PORT}:${APP_PORT}"
         labels:
             - "traefik.enable=true"
-            # using with Docker Swarm - "traefik.http.routers.vscode.rule=Host(`vscode-{{.Task.Slot}}.localhost`)"
+            # Docker Swarm - "traefik.http.routers.vscode.rule=Host(`vscode-{{.Task.Slot}}.localhost`)"
             - "traefik.http.routers.vscode.rule=Host(`vscode.localhost`)"
-            - "traefik.http.services.vscode.loadbalancer.server.port=8443"
+            - "traefik.http.services.vscode.loadbalancer.server.port=${APP_PORT}"
         deploy:
-            replicas: 3
+            replicas: 1

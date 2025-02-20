@@ -20,8 +20,22 @@ cat > /home/coder/.local/share/code-server/User/settings.json << EOF
     "window.menuBarVisibility": "toggle",
     "git.enabled": false,
     "extensions.ignoreRecommendations": true,
-    "workbench.layoutControl.enabled": false
+    "workbench.layoutControl.enabled": false,
+    "keyboard.dispatch": "keyCode",
+    "window.commandCenter": false,
+    "workbench.settings.enableNaturalLanguageSearch": false,
+    "workbench.settings.openDefaultSettings": false
 }
+EOF
+
+cat > /home/coder/.local/share/code-server/User/keybindings.json << EOF
+[
+    { "key": "ctrl+,", "command": "-workbench.action.openSettings" },
+    { "key": "ctrl+shift+p", "command": "-workbench.action.showCommands" },
+    { "key": "ctrl+p", "command": "-workbench.action.quickOpen" },
+    { "key": "f1", "command": "-workbench.action.showCommands" },
+    { "key": "ctrl+shift+o", "command": "-editor.action.quickOutline" }
+]
 EOF
 
 if [ "$(id -u)" -eq 0 ]; then
@@ -54,7 +68,7 @@ if [ ${EXTENSIONS} != "none" ]
     done
 fi
 
-if [ ${LAB_REPO} != "none" ] then
+if [ ${LAB_REPO} != "none" ]; then
     cd workspace
     if [ ! -d "$(basename ${LAB_REPO} .git)" ]; then
         git clone ${LAB_REPO}
@@ -64,7 +78,7 @@ if [ ${LAB_REPO} != "none" ] then
     cd ..
 fi
 
-if [ ${HTTPS_ENABLED} = "true" ] then
+if [ ${HTTPS_ENABLED} = "true" ]; then
     dumb-init /usr/bin/code-server \
       --bind-addr "${APP_BIND_HOST}":"${APP_PORT}" \
       --cert /home/coder/.certs/cert.pem \
