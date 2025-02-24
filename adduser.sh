@@ -27,10 +27,12 @@ docker service create \
   --label "traefik.http.routers.vscode-$USER_ID.rule=PathPrefix(\`/$USER_ID\`)" \
   --label "traefik.http.routers.vscode-$USER_ID.entrypoints=web" \
   --label "traefik.http.services.vscode-$USER_ID.loadbalancer.server.port=8443" \
+  --label "traefik.http.middlewares.vscode-$USER_ID-stripprefix.stripPrefix.prefixes=/$USER_ID" \
+  --label "traefik.http.routers.vscode-$USER_ID.middlewares=vscode-$USER_ID-stripprefix" \
   --mount type=volume,source=workspace-$USER_ID,target=/home/coder/workspace \
-  --publish 8443:8443 \
-  --network my-stack_default \
-  --limit-cpu 0.5 --limit-memory 1G \
+  --network my-stack_web \
+  --limit-cpu 0.5 \
+  --limit-memory 1g \
   batd92/htplus-vscode:v1
 
 echo "Service created. Access at localhost/$USER_ID"
