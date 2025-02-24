@@ -24,54 +24,9 @@ services:
             placement:
                 constraints:
                 - "node.role == manager"
-    whoami:
-        image: "traefik/whoami"
-        container_name: "whoami-service"
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
-            - "traefik.http.routers.whoami.entrypoints=web"
-    vscode:
-        # build:
-        #     context: ./vscode-image
-        #     dockerfile: Dockerfile
-        #     args:
-        #         USER: ${USER}
-        #         UID: ${UID}
-        #         GID: ${GID}
-        image: batd92/htplus-vscode:latest
-        env_file:
-            - .env
-        environment:
-            - PASSWORD=${PASSWORD}
-            - DOCKER_USER=${USER}
-            - HTTPS_ENABLED=${HTTPS_ENABLED}
-            - APP_PORT=${APP_PORT}
-            - APP_BIND_HOST=${APP_BIND_HOST}
-            - LAB_REPO=${LAB_REPO}
-            - EXTENSIONS=${EXTENSIONS}
-        user: "${UUID}:${GID}"
-        volumes:
-            # - ./config:/home/coder/.config
-            - ./certs:/home/coder/.certs
-            - ./workspace:/home/coder/workspace
-        ports:
-            - "${APP_PORT:-8443}:${APP_PORT:-8443}"
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.vscode.rule=Host(`vscode-{{.Task.Slot}}.localhost`)"
-            - "traefik.http.services.vscode.loadbalancer.server.port=${APP_PORT}"
-        deploy:
-            replicas: 2
-            restart_policy:
-                condition: on-failure
-            resources:
-                limits:
-                    memory: 1G
-                    cpus: "0.5"
 volumes:
-  letsencrypt:
+    letsencrypt:
 
 networks:
-  web:
-    driver: overlay
+    web:
+        driver: overlay

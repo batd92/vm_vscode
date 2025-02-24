@@ -1,6 +1,11 @@
 #!/bin/sh
 set -eu
 
+if [ -z "${USER_ID}" ]; then
+    echo "Error: USER_ID not set."
+    exit 1
+fi
+
 export PS1='\w $ '
 
 EXTENSIONS="${EXTENSIONS:-none}"
@@ -9,10 +14,7 @@ LAB_REPO="${LAB_REPO:-none}"
 eval "$(fixuid -q)"
 
 mkdir -p /home/coder/workspace
-
-UNIQUE_DIR="/home/coder/workspace/${HOSTNAME:-$(uuidgen)}"
-mkdir -p "$UNIQUE_DIR"
-export WORKSPACE_DIR="$UNIQUE_DIR"
+WORKSPACE_DIR="/home/coder/workspace"
 
 mkdir -p /home/coder/.local/share/code-server/User
 
@@ -72,12 +74,13 @@ if [ "${EXTENSIONS}" != "none" ]; then
 fi
 
 if [ "${LAB_REPO}" != "none" ]; then
-    if [ ! -d "$WORKSPACE_DIR/$(basename ${LAB_REPO} .git)" ]; then
-        echo "Cloning LAB_REPO into workspace..."
-        git clone ${LAB_REPO} "$WORKSPACE_DIR/$(basename ${LAB_REPO} .git)"
+    cd workspace
+    if [ ! -d "$(basename ${LAB_REPO} .git)" ]; then
+        git clone ${LAB_REPO}
     else
-        echo "Repo already exists in workspace, skipping clone."
+        echo "Repo already exists, skipping clone."
     fi
+    cd ..
 fi
 
 cd "$WORKSPACE_DIR"

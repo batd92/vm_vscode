@@ -29,14 +29,15 @@ root/
 ## DockerHub
 1. Build docker images: ```docker build -t htplus-vscode:latest .```
 2. Set tag image: ```docker tag htplus-vscode:latest <yourusername>/htplus-vscode:latest```
-3. Push image to DockerHub: ```docker push yourusername/htplus-vscode:latest``` 
+3. Push image to DockerHub: ```docker push <yourusername>/htplus-vscode:latest``` 
 
 ##  Docker Compose (Docker Swarm)
 
 1. Create docker swarm: ```docker swarm leave --force```
 2. Init docker swarm: ```docker swarm init```
-3. Run (openn git bash): ```./docker_deployment.sh```
-4. Check stack: ```docker stack ls```
+3. Create stack ```docker stack deploy -c docker-compose.yml my-stack```
+4. Add user to stack (openn git bash): ```./adduser.sh <username>```
+5. Check stack: ```docker stack ls```
 
 ## Kubernetes
 
